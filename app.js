@@ -34,51 +34,31 @@ const STEP_META = {
 };
 
 // ===========================================================================
-// Airtable Integration
+// Airtable Integration (via /api/airtable serverless proxy)
+// The API key lives in Vercel environment variables — never in the browser.
 // ===========================================================================
-const AIRTABLE_TOKEN = "YOUR_AIRTABLE_TOKEN_HERE";
-const AIRTABLE_BASE_ID = "appsOV0BUq3z2E80V";
-const AIRTABLE_TABLE_ID = "tblBYRDcSCwToawvR";
 
 /**
- * Sends enrollment data to Airtable.
+ * Sends enrollment data to Airtable via the /api/airtable serverless function.
  * @param {Object} data - The enrollment payload to save.
  */
 async function saveEnrollmentToSheet(data) {
   try {
-    const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`, {
+    const response = await fetch('/api/airtable', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        fields: {
-          "Confirmation ID":    data.confirmationId,
-          "Timestamp":          data.timestamp,
-          "Parent Name":        data.parentName,
-          "Child Name":         data.childName,
-          "Phone":              data.phone,
-          "Email":              data.email,
-          "Selected Course":    data.selectedCourse,
-          "Course ID":          data.courseId,
-          "Age Range":          data.ageRange,
-          "Experience Level":   data.experienceLevel,
-          "Primary Goal":       data.primaryGoal,
-          "Interests":          data.interests,
-          "Schedule Preference": data.schedulePreference
-        }
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
 
     if (response.ok) {
-      console.log('[UWR] ✅ Enrollment saved to Airtable.');
+      const result = await response.json();
+      console.log('[UWR] ✅ Enrollment saved to Airtable. Record ID:', result.id);
     } else {
       const err = await response.json();
-      console.error('[UWR] ❌ Airtable error:', err);
+      console.error('[UWR] ❌ Airtable proxy error:', err);
     }
   } catch (err) {
-    console.error('[UWR] ❌ Failed to reach Airtable:', err);
+    console.error('[UWR] ❌ Failed to reach /api/airtable:', err);
   }
 }
 
