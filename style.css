@@ -842,6 +842,43 @@ body {
   40%, 80% { transform: translateX(6px); }
 }
 
+/* --- All Other Courses Catalog --- */
+.others-container {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+}
+
+.others-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.others-age-header {
+  margin: 32px 0 16px 0;
+  text-align: left;
+  border-left: 3px solid var(--primary-orange);
+  padding-left: 12px;
+}
+
+.others-age-header h4 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary-orange);
+}
+
+.others-subgrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
 /* --- Responsive Media Queries --- */
 @media (max-width: 840px) {
   .grid-options.three-cols,
@@ -849,7 +886,8 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .alternatives-grid {
+  .alternatives-grid,
+  .others-subgrid {
     grid-template-columns: 1fr;
   }
 }
@@ -920,5 +958,11 @@ body {
   .course-specs {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .others-header {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
   }
 }

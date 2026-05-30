@@ -120,6 +120,24 @@ function initWizard() {
     });
   });
 
+  // Toggle All Other Courses Catalog
+  const btnToggle = document.getElementById("btn-toggle-others");
+  const othersContent = document.getElementById("others-content");
+  if (btnToggle && othersContent) {
+    btnToggle.addEventListener("click", () => {
+      const isHidden = othersContent.style.display === "none";
+      if (isHidden) {
+        othersContent.style.display = "block";
+        btnToggle.querySelector("span").textContent = "Hide Other Courses 📂";
+        renderOthersFilters('All');
+        renderOthersCatalog('All');
+      } else {
+        othersContent.style.display = "none";
+        btnToggle.querySelector("span").textContent = "Explore Other UWR Courses 📂";
+      }
+    });
+  }
+
   // Set initial button state
   updateNavigationUI();
 }
@@ -597,6 +615,128 @@ function renderRecommendations() {
 }
 
 /**
+ * Generates and renders dynamic filter tabs for the other courses catalog.
+ */
+function renderOthersFilters(activeCategory = 'All') {
+  const filterContainer = document.getElementById("others-filters");
+  if (!filterContainer) return;
+  filterContainer.innerHTML = '';
+  
+  const categories = ['All', 'Robotics', 'Coding', 'AI', 'Electronics', '3D Design', 'Drones', 'Games', 'Camps'];
+  
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = `btn ${cat === activeCategory ? 'btn-primary' : 'btn-secondary'}`;
+    btn.style.borderRadius = "20px";
+    btn.style.fontSize = "12px";
+    btn.style.padding = "6px 14px";
+    btn.innerHTML = `<span>${cat}</span>`;
+    
+    btn.addEventListener("click", () => {
+      renderOthersFilters(cat);
+      renderOthersCatalog(cat);
+    });
+    
+    filterContainer.appendChild(btn);
+  });
+}
+
+/**
+ * Dynamic rendering of organized other courses.
+ */
+function renderOthersCatalog(activeCategory = 'All') {
+  const primaryId = appState.recommendations[0]?.id;
+  const altIds = appState.recommendations.slice(1, 3).map(c => c.id);
+  
+  // Filter out primary and alternates
+  let list = UWR_COURSES.filter(c => c.id !== primaryId && !altIds.includes(c.id));
+  
+  // Filter by category if not 'All'
+  if (activeCategory !== 'All') {
+    list = list.filter(c => c.category === activeCategory);
+  }
+  
+  const grid = document.getElementById("others-grid");
+  if (!grid) return;
+  grid.innerHTML = '';
+  
+  const ageGroups = [
+    { key: '5-7', label: '👦 Ages 5 - 7 (Junior Creators)' },
+    { key: '8-11', label: '🧑 Ages 8 - 11 (Young Explorers)' },
+    { key: '12-15', label: '👨 Ages 12 - 15 (Teen Techies)' },
+    { key: '16+', label: '🚀 Ages 16+ (Future Innovators)' }
+  ];
+  
+  let hasAnyCourses = false;
+  
+  ageGroups.forEach(group => {
+    const groupCourses = list.filter(c => c.ageRange.includes(group.key));
+    if (groupCourses.length > 0) {
+      hasAnyCourses = true;
+      
+      // Age Group Header
+      const sectionHeader = document.createElement("div");
+      sectionHeader.className = "others-age-header";
+      sectionHeader.innerHTML = `<h4>${group.label}</h4>`;
+      grid.appendChild(sectionHeader);
+      
+      // Grid for this group
+      const subGrid = document.createElement("div");
+      subGrid.className = "others-subgrid";
+      
+      groupCourses.forEach(course => {
+        const formattedLevel = course.level.charAt(0).toUpperCase() + course.level.slice(1).replace('-', ' ');
+        const defaultDomain = "https://uniqueworldrobotics.com/";
+        const courseLink = course.urlSlug ? defaultDomain + course.urlSlug : defaultDomain;
+        
+        const card = document.createElement("article");
+        card.className = "alt-card other-course-card";
+        card.style.padding = "20px";
+        card.style.gap = "12px";
+        
+        card.innerHTML = `
+          <div class="alt-card-header">
+            <h5 class="alt-card-title" style="font-size: 16px; font-weight: 600;">${course.name}</h5>
+            <div class="course-meta-tags" style="gap: 4px;">
+              <span class="meta-tag special" style="font-size: 11px; padding: 2px 6px;">${course.category}</span>
+              <span class="meta-tag" style="font-size: 11px; padding: 2px 6px;">Ages ${course.ageRange.join(', ')}</span>
+              <span class="meta-tag" style="font-size: 11px; padding: 2px 6px;">${formattedLevel}</span>
+            </div>
+          </div>
+          <p class="card-desc" style="font-size: 13px; text-align: left; margin-bottom: 8px; flex: 1; line-height: 1.4;">${course.description}</p>
+          <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
+            <a href="${courseLink}" target="_blank" rel="noopener" class="btn btn-secondary" style="flex: 1; border-radius: 20px; font-size: 12px; padding: 8px 10px; justify-content: center; text-decoration: none; min-width: 85px;">
+              <span>Learn More</span>
+            </a>
+            <button class="btn btn-primary btn-enroll-other" data-id="${course.id}" style="flex: 1.2; border-radius: 20px; font-size: 12px; padding: 8px 10px; justify-content: center; min-width: 100px;">
+              <span>Select & Enroll</span>
+            </button>
+          </div>
+        `;
+        subGrid.appendChild(card);
+      });
+      grid.appendChild(subGrid);
+    }
+  });
+  
+  if (!hasAnyCourses) {
+    grid.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px 0; width: 100%;">No other courses found in this category.</div>';
+  }
+  
+  // Attach listeners to newly generated other select buttons
+  const otherEnrollBtns = document.querySelectorAll(".btn-enroll-other");
+  otherEnrollBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const courseId = btn.getAttribute("data-id");
+      const matchedCourse = UWR_COURSES.find(c => c.id === courseId);
+      if (matchedCourse) {
+        triggerEnrollment(matchedCourse);
+      }
+    });
+  });
+}
+
+/**
  * Triggers state change into success confirmation screen.
  * Also fires the Google Sheets save.
  */
@@ -702,6 +842,12 @@ function resetQuiz() {
   // Clear invalid states
   const inputs = document.querySelectorAll(".glass-input");
   inputs.forEach(input => input.classList.remove("invalid"));
+
+  // Reset Others section
+  const othersContent = document.getElementById("others-content");
+  if (othersContent) othersContent.style.display = "none";
+  const btnToggle = document.getElementById("btn-toggle-others");
+  if (btnToggle) btnToggle.querySelector("span").textContent = "Explore Other UWR Courses 📂";
 
   // Transition back to step 1
   transitionStep(currentStep, 1);
