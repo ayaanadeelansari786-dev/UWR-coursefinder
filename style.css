@@ -16,15 +16,15 @@
   --bg-dark-card: rgba(14, 26, 47, 0.45);
   --bg-dark-hover: rgba(20, 38, 69, 0.7);
   --border-glass: rgba(255, 255, 255, 0.08);
-  --border-glass-active: rgba(244, 162, 97, 0.4);
+  --border-glass-active: rgba(235, 167, 34, 0.4);
   
-  --primary-orange: #f4a261;
-  --primary-sunset: #e76f51;
-  --accent-gold: #ffb703;
+  --primary-orange: #eba722;
+  --primary-sunset: #d48806;
+  --accent-gold: #ffc107;
   --text-white: #ffffff;
   --text-muted: #94a3b8;
   --text-dimmed: #64748b;
-  --glow-color: rgba(244, 162, 97, 0.25);
+  --glow-color: rgba(235, 167, 34, 0.25);
   
   /* Animations */
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -147,19 +147,21 @@ body {
   margin-bottom: 12px;
 }
 
-.logo-svg {
+.logo-svg,
+.logo-img {
   width: 48px;
   height: 48px;
-  filter: drop-shadow(0 0 12px rgba(244, 162, 97, 0.4));
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px var(--glow-color));
   animation: logo-glow 3s infinite alternate ease-in-out;
 }
 
 @keyframes logo-glow {
   0% {
-    filter: drop-shadow(0 0 6px rgba(244, 162, 97, 0.3));
+    filter: drop-shadow(0 0 6px rgba(235, 167, 34, 0.3));
   }
   100% {
-    filter: drop-shadow(0 0 16px rgba(244, 162, 97, 0.7));
+    filter: drop-shadow(0 0 16px rgba(235, 167, 34, 0.7));
   }
 }
 
