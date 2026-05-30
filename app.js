@@ -72,6 +72,28 @@ document.addEventListener("DOMContentLoaded", () => {
  * Initializes quiz handlers, inputs, and button click listeners.
  */
 function initWizard() {
+  // Explicitly enforce starting at Step 1 and clear answers/selected classes
+  appState.step = 1;
+  appState.answers.ageRange = '';
+  appState.answers.experience = '';
+  appState.answers.goal = '';
+  appState.answers.interests = [];
+  appState.answers.schedule = '';
+  appState.selectedCourse = null;
+  appState.recommendations = [];
+
+  const allCards = document.querySelectorAll(".option-card");
+  allCards.forEach(card => card.classList.remove("selected"));
+
+  const sections = document.querySelectorAll(".step-section");
+  sections.forEach(sec => {
+    if (sec.id === 'step-1') {
+      sec.classList.add("active");
+    } else {
+      sec.classList.remove("active");
+    }
+  });
+
   // Option Card Clicks
   const cards = document.querySelectorAll(".option-card");
   cards.forEach(card => {
